@@ -1,11 +1,26 @@
 # EctoEnumMigration
 
-**TODO: Add description**
+[![CI](https://github.com/brainn-co/ecto_enum_migration/workflows/CI/badge.svg?branch=master)](https://github.com/brainn-co/ecto_enum_migration/actions)
+[![Hex.pm](https://img.shields.io/hexpm/v/ecto_enum_migration)][hex-url]
+[![Hex.pm](https://img.shields.io/hexpm/l/ecto_enum_migration)][hex-url]
+[![Hex.pm](https://img.shields.io/hexpm/dt/ecto_enum_migration)][hex-url]
+
+Provides a DSL to easily handle Postgres Enum Types in Ecto database migrations.
+
+## Why
+
+[`ecto_enum`](https://github.com/gjaldon/ecto_enum) provides some handy helpers to create and drop types during migration.
+The problem with them is that the migrations endedup coupled with the current state
+of the code of the enums.
+
+So any change to a existing enum, or even a rename of the module that holds the
+migration, has a high chance to break existing migrations. So in order to have a
+highly reliable migration suite it need to be fully decoupled from the rest of
+the application.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `ecto_enum_migration` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `ecto_enum_migration` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -15,18 +30,10 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/ecto_enum_migration](https://hexdocs.pm/ecto_enum_migration).
+The docs can be found at [https://hexdocs.pm/ecto_enum_migration](https://hexdocs.pm/ecto_enum_migration).
 
-```
-import EctoEnumMigration
+## License
 
-create_type(type, enums, schema: )
-drop_type(type, enums, schema: )
-rename_type(from: , to: , schema:)
+[Apache License, Version 2.0](LICENSE) © [brainn.co](https://github.com/brainn-co)
 
-create_type_if_not_exists(type, enums, schema: )
-drop_if_exists(type, enums, schema: )
-add_value_to_type(type, value, before: , after: , schema: )
-```
+[hex-url]: https://hex.pm/packages/ecto_enum_migration
