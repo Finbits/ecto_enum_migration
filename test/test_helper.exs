@@ -5,7 +5,7 @@ defmodule EctoEnumMigration.TestRepo do
 end
 
 Application.put_env(:ecto_enum_migration, EctoEnumMigration.TestRepo,
-  url: System.get_env("POSTGRES_URL", "postgres://postgres:postgres@localhost:5432/ecto_enum_migration_test"),
+  url: System.get_env("POSTGRES_URL") || "postgres://postgres:postgres@localhost:5432/ecto_enum_migration_test",
   pool: Ecto.Adapters.SQL.Sandbox
 )
 
