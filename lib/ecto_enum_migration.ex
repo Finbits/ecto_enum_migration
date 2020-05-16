@@ -104,7 +104,8 @@ defmodule EctoEnumMigration do
   ```
 
   """
-  @spec rename_type(before_name :: atom(), after_name :: atom(), opts :: Keyword.t()) :: :ok | no_return()
+  @spec rename_type(before_name :: atom(), after_name :: atom(), opts :: Keyword.t()) ::
+          :ok | no_return()
   def rename_type(before_name, after_name, opts \\ [])
       when is_atom(before_name) and is_atom(after_name) and is_list(opts) do
     before_type_name = type_name(before_name, opts)
