@@ -3,6 +3,8 @@ defmodule EctoEnumMigration do
   Provides a DSL to easily handle Postgres Enum Types in Ecto database migrations.
   """
 
+  import Ecto.Migration, only: [execute: 1, execute: 2]
+
   @doc """
   Create a Postgres Enum Type.
 
@@ -36,7 +38,7 @@ defmodule EctoEnumMigration do
     create_sql = "CREATE TYPE #{type_name} AS ENUM (#{type_values});"
     drop_sql = "DROP TYPE #{type_name};"
 
-    Ecto.Migration.execute(create_sql, drop_sql)
+    execute(create_sql, drop_sql)
   end
 
   @doc """
@@ -75,7 +77,7 @@ defmodule EctoEnumMigration do
     type_name = type_name(name, opts)
     drop_sql = "DROP TYPE #{type_name};"
 
-    Ecto.Migration.execute(drop_sql)
+    execute(drop_sql)
   end
 
   @doc """
@@ -111,7 +113,7 @@ defmodule EctoEnumMigration do
     up_sql = "ALTER TYPE #{before_type_name} RENAME TO #{after_name};"
     down_sql = "ALTER TYPE #{after_type_name} RENAME TO #{before_name};"
 
-    Ecto.Migration.execute(up_sql, down_sql)
+    execute(up_sql, down_sql)
   end
 
   defp type_name(name, opts) do
