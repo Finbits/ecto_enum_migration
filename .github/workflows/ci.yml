@@ -1,0 +1,56 @@
+name: CI
+on: [push]
+jobs:
+  mix_test:
+    name: mix test (Elixir ${{ matrix.elixir }} OTP ${{ matrix.otp }})
+    strategy:
+      matrix:
+        elixir: ["1.7.4", "1.8.2", "1.9.4", "1.10.2"]
+        include:
+          - elixir: "1.7.4"
+            otp: "20.3.8.26"
+          - elixir: "1.8.2"
+            otp: "21.3.8.14"
+          - elixir: "1.9.4"
+            otp: "22.3"
+          - elixir: "1.10.2"
+            otp: "22.3"
+    runs-on: ubuntu-16.04
+    services:
+      db:
+        image: postgres:9.6-alpine
+        ports: ['5432:5432']
+        env:
+          POSTGRES_USER: ecto_enum
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: db_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-elixir@v1.0.0
+        with:
+          otp-version: ${{ matrix.otp }}
+          elixir-version: ${{ matrix.elixir }}
+      - name: Install Dependencies
+        run: mix deps.get
+      - name: Run Tests
+        env:
+          POSTGRES_URL: "postgres://ecto_enum:password@localhost:5432/db_test"
+        run: mix test
+  mix_format:
+    name: mix format (Elixir 1.9.4 OTP 22.3)
+    runs-on: ubuntu-16.04
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-elixir@v1.0.0
+        with:
+          otp-version: "22.3"
+          elixir-version: "1.9.4"
+      - name: Install Dependencies
+        run: mix deps.get
+      - name: Run Formatter
+        run: mix format --check-formatted
