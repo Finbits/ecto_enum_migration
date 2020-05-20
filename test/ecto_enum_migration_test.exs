@@ -40,6 +40,15 @@ defmodule EctoEnumMigrationTest do
     end
   end
 
+  defmodule DropTypeIfExistsMigration do
+    use Ecto.Migration
+    import EctoEnumMigration
+
+    def change do
+      drop_type(:status, if_exists: true)
+    end
+  end
+
   defmodule DropTypeWithCustomSchemaMigration do
     use Ecto.Migration
     import EctoEnumMigration
@@ -188,6 +197,17 @@ defmodule EctoEnumMigrationTest do
 
       assert_raise Ecto.MigrationError, ~r/cannot reverse migration command/, fn ->
         :ok = down(num, DropTypeWithCustomSchemaMigration)
+      end
+    end
+
+    test "supports drop if exists option" do
+      num = version_number()
+      :ok = up(num, DropTypeIfExistsMigration)
+
+      assert current_types() == %{}
+
+      assert_raise Ecto.MigrationError, ~r/cannot reverse migration command/, fn ->
+        :ok = down(num, DropTypeIfExistsMigration)
       end
     end
   end

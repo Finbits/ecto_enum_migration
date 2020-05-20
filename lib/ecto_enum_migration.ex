@@ -75,7 +75,9 @@ defmodule EctoEnumMigration do
   @spec drop_type(name :: atom(), opts :: Keyword.t()) :: :ok | no_return()
   def drop_type(name, opts \\ []) when is_atom(name) and is_list(opts) do
     type_name = type_name(name, opts)
-    drop_sql = "DROP TYPE #{type_name};"
+    if_exists_sql = if_exists_sql(opts)
+
+    drop_sql = "DROP TYPE #{if_exists_sql} #{type_name};"
 
     execute(drop_sql)
   end
@@ -203,5 +205,13 @@ defmodule EctoEnumMigration do
   defp type_name(name, opts) do
     schema = Keyword.get(opts, :schema, "public")
     "#{schema}.#{name}"
+  end
+
+  defp if_exists_sql(opts) do
+    if Keyword.get(opts, :if_exists, false) do
+      "IF EXISTS"
+    else
+      ""
+    end
   end
 end
