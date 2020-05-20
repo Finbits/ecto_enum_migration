@@ -210,6 +210,19 @@ defmodule EctoEnumMigrationTest do
         :ok = down(num, DropTypeIfExistsMigration)
       end
     end
+
+    test "supports drop if exists option when type exists" do
+      :ok = up(version_number(), CreateTypeMigration)
+
+      num = version_number()
+      :ok = up(num, DropTypeIfExistsMigration)
+
+      assert current_types() == %{}
+
+      assert_raise Ecto.MigrationError, ~r/cannot reverse migration command/, fn ->
+        :ok = down(num, DropTypeIfExistsMigration)
+      end
+    end
   end
 
   describe "rename_type/3" do
