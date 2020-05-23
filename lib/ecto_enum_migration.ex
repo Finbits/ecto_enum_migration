@@ -117,6 +117,89 @@ defmodule EctoEnumMigration do
     execute(up_sql, down_sql)
   end
 
+  @doc """
+  Add a value to a existing Postgres type.
+
+  This operation is not reversible, existing values cannot be removed from an enum type.
+  Checkout [Enumerated Types](https://www.postgresql.org/docs/current/datatype-enum.html)
+  for more information.
+
+  Also it cannot be used inside a transaction block, we need to set
+  `@disable_ddl_transaction true` in the migration.
+
+  ## Examples
+
+  ```elixir
+  defmodule MyApp.Repo.Migrations.AddValueToTypeMigration do
+    use Ecto.Migration
+    import EctoEnumMigration
+    @disable_ddl_transaction true
+
+    def change do
+      add_value_to_type(:status, :finished)
+    end
+  end
+  ```
+
+  By default the type will be created in the `public` schema.
+  To change the schema of the type pass the `schema` option.
+
+  ```elixir
+  add_value_to_type(:status, :finished, schema: "custom_schema")
+  ```
+
+  If the new value's place in the enum's ordering is not specified,
+  then the new item is placed at the end of the list of values.
+
+  But we specify the the place in the ordering for the new value with the
+  `:before` and `:after` options.
+
+  ```elixir
+  add_value_to_type(:status, :finished, before: :started)
+  ```
+
+  ```elixir
+  add_value_to_type(:status, :finished, after: :started)
+  ```
+
+  """
+  @spec add_value_to_type(name :: atom(), value :: atom(), opts :: Keyword.t()) ::
+          :ok | no_return()
+
+  def add_value_to_type(name, value, opts \\ []) do
+    [
+      "ALTER TYPE",
+      type_name(name, opts),
+      "ADD VALUE",
+      to_value(value),
+      before_after(opts),
+      ";"
+    ]
+    |> Enum.intersperse(?\s)
+    |> IO.iodata_to_binary()
+    |> execute()
+  end
+
+  defp before_after(opts) do
+    before_value = Keyword.get(opts, :before)
+    after_value = Keyword.get(opts, :after)
+
+    cond do
+      before_value != nil ->
+        ["BEFORE ", to_value(before_value)]
+
+      after_value != nil ->
+        ["AFTER ", to_value(after_value)]
+
+      true ->
+        []
+    end
+  end
+
+  defp to_value(value) do
+    [?', to_string(value), ?']
+  end
+
   defp type_name(name, opts) do
     schema = Keyword.get(opts, :schema, "public")
     "#{schema}.#{name}"
