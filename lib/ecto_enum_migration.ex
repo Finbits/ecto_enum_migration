@@ -185,10 +185,10 @@ defmodule EctoEnumMigration do
     after_value = Keyword.get(opts, :after)
 
     cond do
-      before_value != nil ->
+      before_value ->
         ["BEFORE ", to_value(before_value)]
 
-      after_value != nil ->
+      after_value ->
         ["AFTER ", to_value(after_value)]
 
       true ->
