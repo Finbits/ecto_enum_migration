@@ -74,12 +74,13 @@ defmodule EctoEnumMigration do
   """
   @spec drop_type(name :: atom(), opts :: Keyword.t()) :: :ok | no_return()
   def drop_type(name, opts \\ []) when is_atom(name) and is_list(opts) do
-    type_name = type_name(name, opts)
-    if_exists_sql = if_exists_sql(opts)
-
-    drop_sql = "DROP TYPE #{if_exists_sql} #{type_name};"
-
-    execute(drop_sql)
+    [
+      "DROP TYPE",
+      if_exists_sql(opts),
+      type_name(name, opts),
+      ";"
+    ]
+    |> execute_query()
   end
 
   @doc """
@@ -177,9 +178,7 @@ defmodule EctoEnumMigration do
       before_after(opts),
       ";"
     ]
-    |> Enum.intersperse(?\s)
-    |> IO.iodata_to_binary()
-    |> execute()
+    |> execute_query()
   end
 
   defp before_after(opts) do
@@ -211,7 +210,15 @@ defmodule EctoEnumMigration do
     if Keyword.get(opts, :if_exists, false) do
       "IF EXISTS"
     else
-      ""
+      []
     end
+  end
+
+  defp execute_query(terms) do
+    terms
+    |> Enum.reject(&(is_nil(&1) || &1 == []))
+    |> Enum.intersperse(?\s)
+    |> IO.iodata_to_binary()
+    |> execute()
   end
 end
