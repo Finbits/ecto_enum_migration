@@ -181,6 +181,62 @@ defmodule EctoEnumMigration do
     |> execute_query()
   end
 
+  @doc """
+  Rename a value of a Postgres Type.
+
+  ## Examples
+
+  ```elixir
+  defmodule MyApp.Repo.Migrations.RenameTypeMigration do
+    use Ecto.Migration
+    import EctoEnumMigration
+
+    def change do
+      rename_value(:status, :finished, :done)
+    end
+  end
+  ```
+
+  By default the type will be created in the `public` schema.
+  To change the schema of the type pass the `schema` option.
+
+  ```elixir
+  rename_value(:status, :finished, :done, schema: "custom_schema")
+  ```
+
+  """
+  @spec rename_value(
+          type_name :: atom(),
+          before_value :: atom(),
+          after_value :: atom(),
+          opts :: Keyword.t()
+        ) :: :ok | no_return()
+
+  def rename_value(type_name, before_value, after_value, opts \\ [])
+      when is_atom(type_name) and is_atom(before_value) and is_atom(after_value) and is_list(opts) do
+    type_name = type_name(type_name, opts)
+    before_value = to_value(before_value)
+    after_value = to_value(after_value)
+
+    up_sql = "
+      UPDATE pg_catalog.pg_enum
+      SET enumlabel = #{after_value}
+      WHERE enumtypid = '#{type_name}'::regtype::oid
+        AND enumlabel = #{before_value}
+      RETURNING enumlabel;
+    "
+
+    down_sql = "
+      UPDATE pg_catalog.pg_enum
+      SET enumlabel = #{before_value}
+      WHERE enumtypid = '#{type_name}'::regtype::oid
+        AND enumlabel = #{after_value}
+      RETURNING enumlabel;
+    "
+
+    execute(up_sql, down_sql)
+  end
+
   defp before_after(opts) do
     before_value = Keyword.get(opts, :before)
     after_value = Keyword.get(opts, :after)

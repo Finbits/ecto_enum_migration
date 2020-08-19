@@ -76,6 +76,24 @@ defmodule EctoEnumMigrationTest do
     end
   end
 
+  defmodule RenameValueMigration do
+    use Ecto.Migration
+    import EctoEnumMigration
+
+    def change do
+      rename_value(:status, :registered, :filled)
+    end
+  end
+
+  defmodule RenameValueWithCustomSchemaMigration do
+    use Ecto.Migration
+    import EctoEnumMigration
+
+    def change do
+      rename_value(:status, :registered, :filled, schema: "custom_schema")
+    end
+  end
+
   defmodule AddValueToTypeMigration do
     use Ecto.Migration
     import EctoEnumMigration
@@ -380,6 +398,50 @@ defmodule EctoEnumMigrationTest do
       assert_raise Ecto.MigrationError, ~r/cannot reverse migration command/, fn ->
         :ok = down(add_value_version, AddValueToTypeMigration)
       end
+    end
+  end
+
+  describe "rename_value/4" do
+    test "renames value" do
+      create_version = version_number()
+      rename_version = version_number()
+
+      :ok = up(create_version, CreateTypeMigration)
+      :ok = up(rename_version, RenameValueMigration)
+
+      assert current_types() == %{
+               "public.status" => ["filled", "active", "inactive", "archived"]
+             }
+
+      :ok = down(rename_version, RenameValueMigration)
+
+      assert current_types() == %{
+               "public.status" => ["registered", "active", "inactive", "archived"]
+             }
+
+      :ok = down(create_version, CreateTypeMigration)
+    end
+
+    test "supports custom schema" do
+      :ok = up(version_number(), CreateSchemaMigration)
+
+      create_version = version_number()
+      rename_version = version_number()
+
+      :ok = up(create_version, CreateTypeWithCustomSchemaMigration)
+      :ok = up(rename_version, RenameValueWithCustomSchemaMigration)
+
+      assert current_types() == %{
+               "custom_schema.status" => ["filled", "active", "inactive", "archived"]
+             }
+
+      :ok = down(rename_version, RenameValueWithCustomSchemaMigration)
+
+      assert current_types() == %{
+               "custom_schema.status" => ["registered", "active", "inactive", "archived"]
+             }
+
+      :ok = down(create_version, CreateTypeWithCustomSchemaMigration)
     end
   end
 
