@@ -219,19 +219,11 @@ defmodule EctoEnumMigration do
     after_value = to_value(after_value)
 
     up_sql = "
-      UPDATE pg_catalog.pg_enum
-      SET enumlabel = #{after_value}
-      WHERE enumtypid = '#{type_name}'::regtype::oid
-        AND enumlabel = #{before_value}
-      RETURNING enumlabel;
+      ALTER TYPE #{type_name} RENAME VALUE #{before_value} TO #{after_value};
     "
 
     down_sql = "
-      UPDATE pg_catalog.pg_enum
-      SET enumlabel = #{before_value}
-      WHERE enumtypid = '#{type_name}'::regtype::oid
-        AND enumlabel = #{after_value}
-      RETURNING enumlabel;
+      ALTER TYPE #{type_name} RENAME VALUE #{after_value} TO #{before_value};
     "
 
     execute(up_sql, down_sql)
