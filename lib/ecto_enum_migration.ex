@@ -184,6 +184,8 @@ defmodule EctoEnumMigration do
   @doc """
   Rename a value of a Postgres Type.
 
+  ***Only compatible with Postgres version 10+***
+
   ## Examples
 
   ```elixir
