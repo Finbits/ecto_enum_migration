@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-16.04
     services:
       db:
-        image: postgres:9.6-alpine
+        image: postgres:10.14-alpine
         ports: ['5432:5432']
         env:
           POSTGRES_USER: ecto_enum
