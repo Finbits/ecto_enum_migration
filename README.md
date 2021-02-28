@@ -25,7 +25,7 @@ The package can be installed by adding `ecto_enum_migration` to your list of dep
 ```elixir
 def deps do
   [
-    {:ecto_enum_migration, "~> 0.3.1"}
+    {:ecto_enum_migration, "~> 0.3.2"}
   ]
 end
 ```
