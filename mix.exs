@@ -26,14 +26,14 @@ defmodule EctoEnumMigration.MixProject do
   defp package do
     [
       licenses: ["Apache 2.0"],
-      links: %{"GitHub" => "https://github.com/brainn-co/ecto_enum_migration"}
+      links: %{"GitHub" => "https://github.com/brainnco/ecto_enum_migration"}
     ]
   end
 
   defp docs do
     [
       main: "EctoEnumMigration",
-      source_url: "https://github.com/brainn-co/ecto_enum_migration"
+      source_url: "https://github.com/brainnco/ecto_enum_migration"
     ]
   end
 

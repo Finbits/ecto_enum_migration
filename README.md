@@ -1,6 +1,6 @@
 # EctoEnumMigration
 
-[![CI](https://github.com/brainn-co/ecto_enum_migration/workflows/CI/badge.svg?branch=master)](https://github.com/brainn-co/ecto_enum_migration/actions)
+[![CI](https://github.com/brainnco/ecto_enum_migration/workflows/CI/badge.svg?branch=master)](https://github.com/brainnco/ecto_enum_migration/actions)
 [![Hex.pm](https://img.shields.io/hexpm/v/ecto_enum_migration)][hex-url]
 [![Hex.pm](https://img.shields.io/hexpm/l/ecto_enum_migration)][hex-url]
 [![Hex.pm](https://img.shields.io/hexpm/dt/ecto_enum_migration)][hex-url]
@@ -34,6 +34,6 @@ The docs can be found at [https://hexdocs.pm/ecto_enum_migration](https://hexdoc
 
 ## License
 
-[Apache License, Version 2.0](LICENSE) © [brainn.co](https://github.com/brainn-co)
+[Apache License, Version 2.0](LICENSE) © [brainn.co](https://github.com/brainnco)
 
 [hex-url]: https://hex.pm/packages/ecto_enum_migration
