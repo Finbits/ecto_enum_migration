@@ -138,8 +138,11 @@ defmodule EctoEnumMigration do
     import EctoEnumMigration
     @disable_ddl_transaction true
 
-    def change do
+    def up do
       add_value_to_type(:status, :finished)
+    end
+    
+    def down do
     end
   end
   ```
