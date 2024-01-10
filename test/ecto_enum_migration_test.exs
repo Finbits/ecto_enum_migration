@@ -104,6 +104,16 @@ defmodule EctoEnumMigrationTest do
     end
   end
 
+  defmodule AddValueToTypeIfNotExistsMigration do
+    use Ecto.Migration
+    import EctoEnumMigration
+    @disable_ddl_transaction true
+
+    def change do
+      add_value_to_type(:status, :finished, if_not_exists: true)
+    end
+  end
+
   defmodule AddValueToTypeWithCustomSchemaMigration do
     use Ecto.Migration
     import EctoEnumMigration
@@ -293,6 +303,24 @@ defmodule EctoEnumMigrationTest do
 
       assert_raise Ecto.MigrationError, ~r/cannot reverse migration command/, fn ->
         :ok = down(add_value_version, AddValueToTypeMigration)
+      end
+    end
+
+    test "supports if not exists option" do
+      create_version = version_number()
+      add_value_version = version_number()
+      add_value_version_again = version_number()
+
+      :ok = up(create_version, CreateTypeMigration)
+      :ok = up(add_value_version, AddValueToTypeIfNotExistsMigration)
+      :ok = up(add_value_version_again, AddValueToTypeIfNotExistsMigration)
+
+      assert current_types() == %{
+               "public.status" => ["registered", "active", "inactive", "archived", "finished"]
+             }
+
+      assert_raise Ecto.MigrationError, ~r/cannot reverse migration command/, fn ->
+        :ok = down(add_value_version, AddValueToTypeIfNotExistsMigration)
       end
     end
 

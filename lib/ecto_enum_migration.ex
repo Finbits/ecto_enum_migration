@@ -141,7 +141,7 @@ defmodule EctoEnumMigration do
     def up do
       add_value_to_type(:status, :finished)
     end
-    
+
     def down do
     end
   end
@@ -168,6 +168,12 @@ defmodule EctoEnumMigration do
   add_value_to_type(:status, :finished, after: :started)
   ```
 
+  Can specify to only add value if not exists with the `:if_not_exists` option
+
+  ```elixir
+  add_value_to_type(:status, :finished, if_not_exists: true)
+  ```
+
   """
   @spec add_value_to_type(name :: atom(), value :: atom(), opts :: Keyword.t()) ::
           :ok | no_return()
@@ -177,6 +183,7 @@ defmodule EctoEnumMigration do
       "ALTER TYPE",
       type_name(name, opts),
       "ADD VALUE",
+      if_not_exists_sql(opts),
       to_value(value),
       before_after(opts),
       ";"
@@ -262,6 +269,14 @@ defmodule EctoEnumMigration do
   defp if_exists_sql(opts) do
     if Keyword.get(opts, :if_exists, false) do
       "IF EXISTS"
+    else
+      []
+    end
+  end
+
+  defp if_not_exists_sql(opts) do
+    if Keyword.get(opts, :if_not_exists, false) do
+      "IF NOT EXISTS"
     else
       []
     end
