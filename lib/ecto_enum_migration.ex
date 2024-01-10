@@ -168,6 +168,8 @@ defmodule EctoEnumMigration do
   add_value_to_type(:status, :finished, after: :started)
   ```
 
+  If you want to avoid having issues when the value already exists, you can specify the option `if_not_exists: true`.
+
   """
   @spec add_value_to_type(name :: atom(), value :: atom(), opts :: Keyword.t()) ::
           :ok | no_return()
@@ -177,6 +179,7 @@ defmodule EctoEnumMigration do
       "ALTER TYPE",
       type_name(name, opts),
       "ADD VALUE",
+      if_not_exists(opts),
       to_value(value),
       before_after(opts),
       ";"
@@ -232,6 +235,16 @@ defmodule EctoEnumMigration do
     "
 
     execute(up_sql, down_sql)
+  end
+
+  defp if_not_exists(opts) do
+    if_not_exists = Keyword.get(opts, :if_not_exists)
+
+    if if_not_exists do
+      ["IF NOT EXISTS"]
+    else
+      []
+    end
   end
 
   defp before_after(opts) do

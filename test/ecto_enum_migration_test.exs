@@ -14,6 +14,15 @@ defmodule EctoEnumMigrationTest do
     end
   end
 
+  defmodule CreateTypeIfNotExistsMigration do
+    use Ecto.Migration
+    import EctoEnumMigration
+
+    def change do
+      create_type(:status, [:finished, :registered, :active, :inactive, :archived])
+    end
+  end
+
   defmodule CreateSchemaMigration do
     use Ecto.Migration
 
@@ -28,6 +37,17 @@ defmodule EctoEnumMigrationTest do
 
     def change do
       create_type(:status, [:registered, :active, :inactive, :archived], schema: "custom_schema")
+    end
+  end
+
+  defmodule CreateTypeIfNotExistsWithCustomSchemaMigration do
+    use Ecto.Migration
+    import EctoEnumMigration
+
+    def change do
+      create_type(:status, [:finished, :registered, :active, :inactive, :archived],
+        schema: "custom_schema"
+      )
     end
   end
 
@@ -151,6 +171,26 @@ defmodule EctoEnumMigrationTest do
 
     def change do
       add_value_to_type(:status, :finished, after: :active, schema: "custom_schema")
+    end
+  end
+
+  defmodule AddValueToTypeWithIfNotExistsMigration do
+    use Ecto.Migration
+    import EctoEnumMigration
+    @disable_ddl_transaction true
+
+    def change do
+      add_value_to_type(:status, :finished, if_not_exists: true)
+    end
+  end
+
+  defmodule AddValueToTypeWithIfNotExistsAndCustomSchemaMigration do
+    use Ecto.Migration
+    import EctoEnumMigration
+    @disable_ddl_transaction true
+
+    def change do
+      add_value_to_type(:status, :finished, if_not_exists: true, schema: "custom_schema")
     end
   end
 
@@ -328,6 +368,22 @@ defmodule EctoEnumMigrationTest do
       end
     end
 
+    test "supports if_not_exists option" do
+      create_version = version_number()
+      add_value_version = version_number()
+
+      :ok = up(create_version, CreateTypeIfNotExistsMigration)
+      :ok = up(add_value_version, AddValueToTypeWithIfNotExistsMigration)
+
+      assert current_types() == %{
+               "public.status" => ["finished", "registered", "active", "inactive", "archived"]
+             }
+
+      assert_raise Ecto.MigrationError, ~r/cannot reverse migration command/, fn ->
+        :ok = down(add_value_version, AddValueToTypeMigration)
+      end
+    end
+
     test "supports custom schema" do
       :ok = up(version_number(), CreateSchemaMigration)
 
@@ -390,6 +446,30 @@ defmodule EctoEnumMigrationTest do
                  "registered",
                  "active",
                  "finished",
+                 "inactive",
+                 "archived"
+               ]
+             }
+
+      assert_raise Ecto.MigrationError, ~r/cannot reverse migration command/, fn ->
+        :ok = down(add_value_version, AddValueToTypeMigration)
+      end
+    end
+
+    test "supports if_not_exists option with custom schema" do
+      :ok = up(version_number(), CreateSchemaMigration)
+
+      create_version = version_number()
+      add_value_version = version_number()
+
+      :ok = up(create_version, CreateTypeIfNotExistsWithCustomSchemaMigration)
+      :ok = up(add_value_version, AddValueToTypeWithIfNotExistsAndCustomSchemaMigration)
+
+      assert current_types() == %{
+               "custom_schema.status" => [
+                 "finished",
+                 "registered",
+                 "active",
                  "inactive",
                  "archived"
                ]
