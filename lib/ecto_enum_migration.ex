@@ -127,8 +127,8 @@ defmodule EctoEnumMigration do
   Checkout [Enumerated Types](https://www.postgresql.org/docs/current/datatype-enum.html)
   for more information.
 
-  Also it cannot be used inside a transaction block, we need to set
-  `@disable_ddl_transaction true` in the migration.
+  Also if running on a version of Postgres <= 11 then it cannot be used inside
+  a transaction block, so we need to set `@disable_ddl_transaction true` in the migration.
 
   ## Examples
 
@@ -136,6 +136,7 @@ defmodule EctoEnumMigration do
   defmodule MyApp.Repo.Migrations.AddValueToTypeMigration do
     use Ecto.Migration
     import EctoEnumMigration
+    # Only needed if running on Postgres <= 11
     @disable_ddl_transaction true
 
     def up do
