@@ -3,6 +3,8 @@ defmodule EctoEnumMigration do
   Provides a DSL to easily handle Postgres Enum Types in Ecto database migrations.
   """
 
+  alias Ecto.Migration
+
   import Ecto.Migration, only: [execute: 1, execute: 2]
 
   @doc """
@@ -263,8 +265,14 @@ defmodule EctoEnumMigration do
   end
 
   defp type_name(name, opts) do
-    schema = Keyword.get(opts, :schema, "public")
-    "#{schema}.#{name}"
+    opts_schema = Keyword.get(opts, :schema, "public")
+
+    repo_prefix =
+      %{prefix: nil}
+      |> Ecto.Migration.__prefix__()
+      |> Map.fetch!(:prefix)
+
+    "#{repo_prefix || opts_schema}.#{name}"
   end
 
   defp if_exists_sql(opts) do
