@@ -3,8 +3,6 @@ defmodule EctoEnumMigration do
   Provides a DSL to easily handle Postgres Enum Types in Ecto database migrations.
   """
 
-  alias Ecto.Migration
-
   import Ecto.Migration, only: [execute: 1, execute: 2]
 
   @doc """
