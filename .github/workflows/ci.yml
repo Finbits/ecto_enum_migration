@@ -8,9 +8,9 @@ jobs:
         elixir: ["1.7.4-otp-20", "1.17.3-otp-27"]
         include:
           - elixir: "1.7.4-otp-20"
-            otp: "20.3.8.26"
+            otp: "20"
           - elixir: "1.17.3-otp-27"
-            otp: "27.0.1"
+            otp: "27"
     runs-on: ubuntu-latest
     services:
       db:
@@ -44,7 +44,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: "27.0.1"
+          otp-version: "27"
           elixir-version: "1.17.3-otp-27"
       - name: Install Dependencies
         run: mix deps.get
