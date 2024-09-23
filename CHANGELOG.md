@@ -1,5 +1,11 @@
 # Changelog 
 
+## v0.3.6 (2024-09-23)
+
+### Enhancements
+
+- Add changelog
+
 ## v0.3.5 (2024-09-23)
 
 ### Enhancements
