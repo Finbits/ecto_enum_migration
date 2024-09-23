@@ -5,16 +5,12 @@ jobs:
     name: mix test (Elixir ${{ matrix.elixir }} OTP ${{ matrix.otp }})
     strategy:
       matrix:
-        elixir: ["1.7.4", "1.8.2", "1.9.4", "1.10.2"]
+        elixir: ["1.7.4-otp-20", "1.17.3-otp-27"]
         include:
           - elixir: "1.7.4"
             otp: "20.3.8.26"
-          - elixir: "1.8.2"
-            otp: "21.3.8.14"
-          - elixir: "1.9.4"
-            otp: "22.3"
-          - elixir: "1.10.2"
-            otp: "22.3"
+          - elixir: "1.17.3"
+            otp: "27.0.1"
     runs-on: ubuntu-latest
     services:
       db:
@@ -42,14 +38,14 @@ jobs:
           POSTGRES_URL: "postgres://ecto_enum:password@localhost:5432/db_test"
         run: mix test
   mix_format:
-    name: mix format (Elixir 1.9.4 OTP 22.3)
+    name: mix format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: "22.3"
-          elixir-version: "1.9.4"
+          otp-version: "27.0.1"
+          elixir-version: "1.17.3"
       - name: Install Dependencies
         run: mix deps.get
       - name: Run Formatter
