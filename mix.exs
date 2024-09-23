@@ -1,22 +1,26 @@
 defmodule EctoEnumMigration.MixProject do
   use Mix.Project
 
+  @name "EctoEnumMigration"
+  @version "0.3.5"
+  @repo_url "https://github.com/Finbits/ecto_enum_migration"
+
   def project do
     [
       app: :ecto_enum_migration,
-      version: "0.3.5",
+      version: @version,
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       description:
         "Provides a DSL to easily handle Postgres Enum Types in Ecto database migrations",
       package: package(),
-      name: "EctoEnumMigration",
+      name: @name,
+      source_url: @repo_url,
       docs: docs()
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger]
@@ -25,19 +29,25 @@ defmodule EctoEnumMigration.MixProject do
 
   defp package do
     [
-      licenses: ["Apache 2.0"],
-      links: %{"GitHub" => "https://github.com/Finbits/ecto_enum_migration"}
+      licenses: ["Apache-2.0"],
+      links: %{
+        "GitHub" => @repo_url,
+        "Changelog" => "https://hexdocs.pm/ecto_enum_migration/changelog.html"
+      }
     ]
   end
 
   defp docs do
     [
-      main: "EctoEnumMigration",
-      source_url: "https://github.com/Finbits/ecto_enum_migration"
+      main: @name,
+      source_url: @repo_url,
+      source_ref: "v#{@version}",
+      extras: [
+        "CHANGELOG.md"
+      ]
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:ecto_sql, "~> 3.0"},
