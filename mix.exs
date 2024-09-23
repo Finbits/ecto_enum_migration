@@ -2,7 +2,7 @@ defmodule EctoEnumMigration.MixProject do
   use Mix.Project
 
   @name "EctoEnumMigration"
-  @version "0.3.6"
+  @version "0.4.0"
   @repo_url "https://github.com/Finbits/ecto_enum_migration"
 
   def project do

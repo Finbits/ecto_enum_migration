@@ -1,5 +1,12 @@
 # Changelog 
 
+## v0.4.0 (2024-09-23)
+
+### Enhancements
+
+- Update CI
+- Support only elixir 1.11 and newer
+
 ## v0.3.6 (2024-09-23)
 
 ### Enhancements
