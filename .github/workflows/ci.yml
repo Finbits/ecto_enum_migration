@@ -8,10 +8,10 @@ jobs:
         elixir: ["1.11.4", "1.17.3"]
         include:
           - elixir: "1.11.4"
-            otp: "22.3.4"
+            otp: "24.x"
           - elixir: "1.17.3"
-            otp: "27.0.1"
-    runs-on: ubuntu-latest
+            otp: "27.x"
+    runs-on: ubuntu-24.04
     services:
       db:
         image: postgres:10.14-alpine
@@ -39,12 +39,12 @@ jobs:
         run: mix test
   mix_format:
     name: mix format
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: "27.0.1"
+          otp-version: "27.x"
           elixir-version: "1.17.3"
       - name: Install Dependencies
         run: mix deps.get
