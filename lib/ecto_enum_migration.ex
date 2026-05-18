@@ -71,16 +71,35 @@ defmodule EctoEnumMigration do
   drop_type(:status, schema: "custom_schema")
   ```
 
+  When combined with `if_exists: true`, you can pass `down: :noop` to make the
+  migration reversible with a `down` step that does nothing. This is useful in `change/0`
+  callbacks, where Ecto would otherwise raise on rollback. `down: :noop` requires
+  `if_exists: true`, since re-applying the migration would fail if the type no longer
+  exists.
+
+  ```elixir
+  drop_type(:status, if_exists: true, down: :noop)
+  ```
+
   """
   @spec drop_type(name :: atom(), opts :: Keyword.t()) :: :ok | no_return()
   def drop_type(name, opts \\ []) when is_atom(name) and is_list(opts) do
-    [
-      "DROP TYPE",
-      if_exists_sql(opts),
-      type_name(name, opts),
-      ";"
-    ]
-    |> execute_query()
+    validate_noop_down!(opts, "drop_type/2", :if_exists)
+
+    up_sql =
+      [
+        "DROP TYPE",
+        if_exists_sql(opts),
+        type_name(name, opts),
+        ";"
+      ]
+      |> build_query()
+
+    if Keyword.get(opts, :down) == :noop do
+      execute(up_sql, fn -> :ok end)
+    else
+      execute(up_sql)
+    end
   end
 
   @doc """
@@ -175,21 +194,39 @@ defmodule EctoEnumMigration do
   add_value_to_type(:status, :finished, if_not_exists: true)
   ```
 
+  When combined with `if_not_exists: true`, you can pass `down: :noop` to make the
+  migration reversible with a `down` step that does nothing. This is useful in `change/0`
+  callbacks, where Ecto would otherwise raise on rollback. `down: :noop` requires
+  `if_not_exists: true`, since re-applying the migration would fail if the value already
+  exists.
+
+  ```elixir
+  add_value_to_type(:status, :finished, if_not_exists: true, down: :noop)
+  ```
   """
   @spec add_value_to_type(name :: atom(), value :: atom(), opts :: Keyword.t()) ::
           :ok | no_return()
 
   def add_value_to_type(name, value, opts \\ []) do
-    [
-      "ALTER TYPE",
-      type_name(name, opts),
-      "ADD VALUE",
-      if_not_exists_sql(opts),
-      to_value(value),
-      before_after(opts),
-      ";"
-    ]
-    |> execute_query()
+    validate_noop_down!(opts, "add_value_to_type/3", :if_not_exists)
+
+    up_sql =
+      [
+        "ALTER TYPE",
+        type_name(name, opts),
+        "ADD VALUE",
+        if_not_exists_sql(opts),
+        to_value(value),
+        before_after(opts),
+        ";"
+      ]
+      |> build_query()
+
+    if Keyword.get(opts, :down) == :noop do
+      execute(up_sql, fn -> :ok end)
+    else
+      execute(up_sql)
+    end
   end
 
   @doc """
@@ -289,11 +326,18 @@ defmodule EctoEnumMigration do
     end
   end
 
-  defp execute_query(terms) do
+  defp build_query(terms) do
     terms
     |> Enum.reject(&(is_nil(&1) || &1 == []))
     |> Enum.intersperse(?\s)
     |> IO.iodata_to_binary()
-    |> execute()
+  end
+
+  defp validate_noop_down!(opts, fun, required_opt) do
+    if opts[:down] == :noop and !opts[required_opt] do
+      raise ArgumentError,
+            "#{fun} requires `#{required_opt}: true` when `down: :noop` is given, " <>
+              "otherwise the migration could not be re-applied after a rollback."
+    end
   end
 end

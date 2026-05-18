@@ -58,6 +58,24 @@ defmodule EctoEnumMigrationTest do
     end
   end
 
+  defmodule DropTypeIfExistsNoopDownMigration do
+    use Ecto.Migration
+    import EctoEnumMigration
+
+    def change do
+      drop_type(:status, if_exists: true, down: :noop)
+    end
+  end
+
+  defmodule DropTypeNoopDownWithoutIfExistsMigration do
+    use Ecto.Migration
+    import EctoEnumMigration
+
+    def change do
+      drop_type(:status, down: :noop)
+    end
+  end
+
   defmodule RenameTypeMigration do
     use Ecto.Migration
     import EctoEnumMigration
@@ -111,6 +129,26 @@ defmodule EctoEnumMigrationTest do
 
     def change do
       add_value_to_type(:status, :finished, if_not_exists: true)
+    end
+  end
+
+  defmodule AddValueToTypeIfNotExistsNoopDownMigration do
+    use Ecto.Migration
+    import EctoEnumMigration
+    @disable_ddl_transaction true
+
+    def change do
+      add_value_to_type(:status, :finished, if_not_exists: true, down: :noop)
+    end
+  end
+
+  defmodule AddValueToTypeNoopDownWithoutIfNotExistsMigration do
+    use Ecto.Migration
+    import EctoEnumMigration
+    @disable_ddl_transaction true
+
+    def change do
+      add_value_to_type(:status, :finished, down: :noop)
     end
   end
 
@@ -251,6 +289,35 @@ defmodule EctoEnumMigrationTest do
         :ok = down(num, DropTypeIfExistsMigration)
       end
     end
+
+    test "supports if exists with down: :noop (reversible no-op down)" do
+      create_version = version_number()
+      drop_version = version_number()
+
+      :ok = up(create_version, CreateTypeMigration)
+      :ok = up(drop_version, DropTypeIfExistsNoopDownMigration)
+
+      assert current_types() == %{}
+
+      :ok = down(drop_version, DropTypeIfExistsNoopDownMigration)
+
+      assert current_types() == %{}
+
+      :ok = up(drop_version, DropTypeIfExistsNoopDownMigration)
+
+      assert current_types() == %{}
+    end
+
+    test "raises when down: :noop is given without if_exists: true" do
+      create_version = version_number()
+      drop_version = version_number()
+
+      :ok = up(create_version, CreateTypeMigration)
+
+      assert_raise ArgumentError, ~r/requires `if_exists: true`/, fn ->
+        up(drop_version, DropTypeNoopDownWithoutIfExistsMigration)
+      end
+    end
   end
 
   describe "rename_type/3" do
@@ -321,6 +388,41 @@ defmodule EctoEnumMigrationTest do
 
       assert_raise Ecto.MigrationError, ~r/cannot reverse migration command/, fn ->
         :ok = down(add_value_version, AddValueToTypeIfNotExistsMigration)
+      end
+    end
+
+    test "supports if not exists with down: :noop (reversible no-op down)" do
+      create_version = version_number()
+      add_value_version = version_number()
+
+      :ok = up(create_version, CreateTypeMigration)
+      :ok = up(add_value_version, AddValueToTypeIfNotExistsNoopDownMigration)
+
+      assert current_types() == %{
+               "public.status" => ["registered", "active", "inactive", "archived", "finished"]
+             }
+
+      :ok = down(add_value_version, AddValueToTypeIfNotExistsNoopDownMigration)
+
+      assert current_types() == %{
+               "public.status" => ["registered", "active", "inactive", "archived", "finished"]
+             }
+
+      :ok = up(add_value_version, AddValueToTypeIfNotExistsNoopDownMigration)
+
+      assert current_types() == %{
+               "public.status" => ["registered", "active", "inactive", "archived", "finished"]
+             }
+    end
+
+    test "raises when down: :noop is given without if_not_exists: true" do
+      create_version = version_number()
+      add_value_version = version_number()
+
+      :ok = up(create_version, CreateTypeMigration)
+
+      assert_raise ArgumentError, ~r/requires `if_not_exists: true`/, fn ->
+        up(add_value_version, AddValueToTypeNoopDownWithoutIfNotExistsMigration)
       end
     end
 
